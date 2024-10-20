@@ -120,3 +120,9 @@ class MobileNetv2(nn.Module):
 
 def mobilenetv2(**kwargs):
     return MobileNetv2(**kwargs)
+
+if __name__ == "__main__":
+    model = mobilenetv2(num_classes=100, width_mult=1.0)
+    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total trainable parameters: {total_params}")
+

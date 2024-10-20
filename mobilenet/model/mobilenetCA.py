@@ -189,3 +189,8 @@ class MobileNetCA(nn.Module):
 
 def mobilenetCA(**kwargs):
     return  MobileNetCA(**kwargs)
+
+if __name__ == "__main__":
+    model = mobilenetCA(num_classes=100, width_mult=1.0)
+    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total trainable parameters: {total_params}")

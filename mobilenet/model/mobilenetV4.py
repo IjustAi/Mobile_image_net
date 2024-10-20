@@ -2,15 +2,12 @@ import torch
 import torch.nn as nn
 import math
 
-
 __all__ = ['mobilenetv4']
-
 
 def make_divisible(value, divisor, min_value=None, round_down_protect=True):
     if min_value is None:
         min_value = divisor
     new_value = max(min_value, int(value + divisor / 2) // divisor * divisor)
-    # Make sure that round down does not go down by more than 10%.
     if round_down_protect and new_value < 0.9 * value:
         new_value += divisor
     return new_value
@@ -115,7 +112,6 @@ class MobileNetV4(nn.Module):
                 raise NotImplementedError
             c = f
         self.features = nn.Sequential(*layers)
-        # building last several layers
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         hidden_channels = 1280
         self.conv = ConvBN(c, hidden_channels, 1)
@@ -152,31 +148,30 @@ def mobilenetv4(**kwargs):
     Constructs a MobileNetV4-Conv-Small model
     """
     block_specs = [
-        # conv_bn, kernel_size, stride, out_channels
-        # uib, start_dw_kernel_size, middle_dw_kernel_size, stride, out_channels, expand_ratio
-        # 112px
         ('conv_bn', 3, 2, 32),
-        # 56px
         ('conv_bn', 3, 2, 32),
         ('conv_bn', 1, 1, 32),
-        # 28px
         ('conv_bn', 3, 2, 96),
         ('conv_bn', 1, 1, 64),
-        # 14px
-        ('uib', 5, 5, 2, 96, 3.0),  # ExtraDW
-        ('uib', 0, 3, 1, 96, 2.0),  # IB
-        ('uib', 0, 3, 1, 96, 2.0),  # IB
-        ('uib', 0, 3, 1, 96, 2.0),  # IB
-        ('uib', 0, 3, 1, 96, 2.0),  # IB
-        ('uib', 3, 0, 1, 96, 4.0),  # ConvNext
-        # 7px
-        ('uib', 3, 3, 2, 128, 6.0),  # ExtraDW
-        ('uib', 5, 5, 1, 128, 4.0),  # ExtraDW
-        ('uib', 0, 5, 1, 128, 4.0),  # IB
-        ('uib', 0, 5, 1, 128, 3.0),  # IB
-        ('uib', 0, 3, 1, 128, 4.0),  # IB
-        ('uib', 0, 3, 1, 128, 4.0),  # IB
-        ('conv_bn', 1, 1, 960),  # Conv
+        ('uib', 5, 5, 2, 96, 3.0), 
+        ('uib', 0, 3, 1, 96, 2.0),  
+        ('uib', 0, 3, 1, 96, 2.0),  
+        ('uib', 0, 3, 1, 96, 2.0),  
+        ('uib', 0, 3, 1, 96, 2.0),  
+        ('uib', 3, 0, 1, 96, 4.0),  
+   
+        ('uib', 3, 3, 2, 128, 6.0),  
+        ('uib', 5, 5, 1, 128, 4.0),  
+        ('uib', 0, 5, 1, 128, 4.0),  
+        ('uib', 0, 5, 1, 128, 3.0),  
+        ('uib', 0, 3, 1, 128, 4.0),  
+        ('uib', 0, 3, 1, 128, 4.0),  
+        ('conv_bn', 1, 1, 960),  
     ]
     return MobileNetV4(block_specs, **kwargs)
 
+
+if __name__ == "__main__":
+    model = mobilenetv4(num_classes=100)
+    total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total trainable parameters: {total_params}")

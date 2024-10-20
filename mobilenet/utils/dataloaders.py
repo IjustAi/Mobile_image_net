@@ -42,7 +42,7 @@ def save_checkpoint(model,optimizer,epoch,loss,filename='checkpoint.pth',directo
         'loss': loss,
     }, filepath)
 
-def load_checkpoint(model, optimizer, filename='mobilenetv2_checkpoint_50.pth', directory='/Users/chenyufeng/desktop/mobilenet/checkpoint'):
+def load_checkpoint(model, optimizer, filename, directory):
     filepath = os.path.join(directory, filename)
     if os.path.isfile(filepath):
         checkpoint = torch.load(filepath)

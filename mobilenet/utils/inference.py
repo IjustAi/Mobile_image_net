@@ -15,18 +15,19 @@ from dataloaders import get_data_loaders, save_checkpoint, load_checkpoint
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from model.mobilenetV2 import mobilenetv2
 from model.mobilenetCA import mobilenetCA
+from model.mobilenetV4 import mobilenetv4
 from tqdm import tqdm
 
 def main():
     device = torch.device('mps') if torch.backends.mps.is_available() else torch.device('cpu')
-    model =  mobilenetv2().to(device)
+    model =  mobilenetCA().to(device)
 
     _, _, testset = get_data_loaders()
     test_loader_len = len(testset)
     
     criterion = nn.CrossEntropyLoss()
 
-    start_epoch, optimizer_state = load_checkpoint(model, optimizer=None, filename='mobilenetv2_checkpoint_50.pth', directory='/Users/chenyufeng/desktop/mobilenet/checkpoint')
+    start_epoch, optimizer_state = load_checkpoint(model, optimizer=None, filename='mobilenetCA_checkpoint_50.pth', directory='/Users/chenyufeng/desktop/mobilenet/checkpoint_CA')
     if optimizer_state:
         print(f"Checkpoint loaded.")
     
@@ -65,26 +66,7 @@ def main():
     print("\nClassification Report:\n", report)
 
     cm = confusion_matrix(all_targets, all_predictions)
-
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=np.unique(all_targets), yticklabels=np.unique(all_targets))
-    plt.title('Confusion Matrix')
-    plt.xlabel('Predicted')
-    plt.ylabel('True')
-    plt.show()
     
-    torch.mps.empty_cache()  
-
-    plt.figure(figsize=(10, 5))
-    plt.plot(range(1, test_loader_len + 1), losses, marker='o', linestyle='-', color='b', label='Test Loss per Batch')
-    plt.title('Test Loss Over Batches')
-    plt.xlabel('Batch')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.grid()
-    plt.xticks(range(1, test_loader_len + 1))
-    plt.savefig('test_loss.png') 
-    plt.show()
 
 if __name__ =='__main__':
     main()
